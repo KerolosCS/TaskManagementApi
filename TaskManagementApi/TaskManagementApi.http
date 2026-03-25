@@ -1,8 +1,31 @@
 @TaskManagementApi_HostAddress = http://localhost:5039
-
+@tokennn = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwiZW1haWwiOiJrZXJvbG9zIiwibmJmIjoxNzc0MzU1ODE0LCJleHAiOjE3NzQzNjMwMTQsImlhdCI6MTc3NDM1NTgxNCwiaXNzIjoiVGFza01hbmFnZW1lbnRBUEkifQ.GWidbMxRQwePgbVI6AOaKyjY5tS7tv-MD-dnl2XnPFA
 GET {{TaskManagementApi_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
 
+POST {{TaskManagementApi_HostAddress}}/api/boards
+Content-Type: application/json
+Authorization: {{tokennn}}
+
+{
+    "name": "I can do it 2"
+}
+
+
+###
+GET  {{TaskManagementApi_HostAddress}}/api/boards
+Authorization:{{tokennn}}
+
+
+
+###
+DELETE {{TaskManagementApi_HostAddress}}/api/boards/5
+Authorization:{{tokennn}}
+
+
+###
+GET  {{TaskManagementApi_HostAddress}}/api/boards/5
+Authorization:{{tokennn}}
 
