@@ -2,11 +2,11 @@
 
 namespace TaskManagementApi.DTOs
 {
-    public class TaskDto
+    public class UpdateTaskDto
     {
-        public int Id { get; set; }
         public string Title { get; set; }
-        public TaskStatusEnum Status { get; set; }
+        public string Description { get; set; }
+        public TaskStatusEnum Status { get; set; } // ToDo, InProgress, Done
         public TaskPriority Priority { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace TaskManagementApi.models
+﻿using TaskManagementApi.enums;
+
+namespace TaskManagementApi.models
 {
     public class TaskItem
     {
@@ -6,8 +8,8 @@
         public string Title { get; set; }
         public string Description { get; set; }
 
-        public string Status { get; set; } 
-        public string Priority { get; set; } 
+        public TaskStatusEnum Status { get; set; } 
+        public TaskPriority Priority { get; set; } 
 
         public int BoardId { get; set; }
         public Board Board { get; set; }
