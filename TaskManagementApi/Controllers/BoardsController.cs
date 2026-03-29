@@ -55,7 +55,6 @@ namespace TaskManagementApi.Controllers
                 CreatedAt = b.CreatedAt
             }).ToList();
             return Ok(boardsResponse);
-
         }
 
         [HttpDelete("{id:int}")]

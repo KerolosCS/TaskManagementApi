@@ -12,7 +12,7 @@ namespace TaskManagementApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(AppDbContext context , IConfiguration configuration) : ControllerBase
+    public class AuthController(AppDbContext context, IConfiguration configuration) : ControllerBase
     {
 
 
@@ -26,8 +26,8 @@ namespace TaskManagementApi.Controllers
                 Email = registerDto.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
                 CreatedAt = DateTime.UtcNow,
-                
-               
+
+
             };
             context.Users.Add(user);
             context.SaveChanges();
@@ -37,13 +37,14 @@ namespace TaskManagementApi.Controllers
 
 
         [HttpPost("login")]
-        public IActionResult Login(LoginDto loginDto) { 
-        
-                var user = context.Users.FirstOrDefault(u => u.Email == loginDto.Email);
-                if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password))
-                {
-                    return Unauthorized("Invalid credentials");
-                }
+        public IActionResult Login(LoginDto loginDto)
+        {
+
+            var user = context.Users.FirstOrDefault(u => u.Email == loginDto.Email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password))
+            {
+                return Unauthorized("Invalid credentials");
+            }
             // class  handle the token
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -59,17 +60,24 @@ namespace TaskManagementApi.Controllers
                 }),
                 Expires = DateTime.UtcNow.AddHours(2),
                 Issuer = configuration["Jwt:Issuer"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return Ok(new {token  = tokenHandler.WriteToken(token)});
+            return Ok(new { token = tokenHandler.WriteToken(token) });
 
 
 
         }
 
+        [HttpGet("profile")]
+        public IActionResult GetProfile()
+        {
 
+
+            System.IO.File.ReadAllText(@"c:\lolo");
+            return Ok();
+        }
     }
 }

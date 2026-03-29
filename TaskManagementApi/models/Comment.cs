@@ -1,4 +1,6 @@
-﻿namespace TaskManagementApi.models
+﻿using TaskManagementApi.DTOs;
+
+namespace TaskManagementApi.models
 {
     public class Comment
     {

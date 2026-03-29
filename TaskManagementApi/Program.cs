@@ -7,14 +7,21 @@ using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using System.Text;
 using TaskManagementApi.Data;
+using TaskManagementApi.Filters;
+using TaskManagementApi.Middleware;
 public partial class Program
 {
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+        // add problem details factory
+        builder.Services.AddProblemDetails();
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>(); 
         // Add services to the container.
-        builder.Services.AddControllers();
+        builder.Services.AddControllers(op =>
+        {
+            op.Filters.Add<EnvelopResultFilter>();
+        });
         // Configure Entity Framework Core with SQL Server
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -120,8 +127,10 @@ public partial class Program
         app.UseAuthentication();
 
         app.UseAuthorization();
-
+        app.UseExceptionHandler();
         app.MapControllers();
+
+     
 
 
         app.Run();
