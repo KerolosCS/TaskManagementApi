@@ -100,6 +100,7 @@ Authorization: Bearer YOUR_TOKEN
 ### 💬 Boards
 * `GET /api/boards/{boardId}`
 * `POST /api/boards`
+* `PUT /api/boards/{boardId}`
 * `Delete /api/boards/{boardId}`
 * `GET /api/boards/{boardId}`
 
@@ -107,14 +108,15 @@ Authorization: Bearer YOUR_TOKEN
 
 * `GET /api/tasks/board/{boardId}`
 * `POST /api/tasks`
-* `Update /api/tasks/{taskId}`
+* `PUT /api/tasks/{taskId}`
 * `Delete /api/tasks/{taskId}`
 
 ### 💬 Comments
 
 * `POST /api/comments`
+* `PUT /api/comments/{commentId}`
 * `GET /api/comments/task/{taskId}`
-* `DELETE /api/comments/{id}`
+* `DELETE /api/comments/{commentId}`
 
 ---
 
