@@ -52,12 +52,13 @@ namespace TaskManagementApi.Controllers
         public IActionResult GetComments(int taskId)
         {
             var comments = context.Comments
-                .Where(c => c.TaskId == taskId).Select(c => new CommentResponseDto { 
-                
-                Id = c.Id,
-                Content = c.Content,
-                CreatedAt = c.CreatedAt,
-                UserName = c.User.Name,
+                .Where(c => c.TaskId == taskId).Select(c => new CommentResponseDto
+                {
+
+                    Id = c.Id,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt,
+                    UserName = c.User.Name,
                 }).ToList();
 
 
@@ -79,6 +80,26 @@ namespace TaskManagementApi.Controllers
             context.SaveChanges();
 
             return NoContent();
+        }
+
+        [HttpPut("{id:int}")]
+        public IActionResult UpdateComment(int id, CommentUpdateDto commentdto)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var comment = context.Comments
+                .FirstOrDefault(c => c.Id == id && c.UserId == userId);
+            if (comment == null)
+                return NotFound();
+            comment.Content = commentdto.Content;
+            context.SaveChanges();
+            context.Entry(comment).Reference(c => c.User).Load();
+            return Ok(new CommentResponseDto
+            {
+                Id = comment.Id,
+                UserName = comment.User.Name,
+                Content = comment.Content,
+                CreatedAt = comment.CreatedAt
+            });
         }
     }
 }

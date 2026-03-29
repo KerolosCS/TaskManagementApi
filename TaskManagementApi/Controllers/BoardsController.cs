@@ -39,6 +39,25 @@ namespace TaskManagementApi.Controllers
             return Ok(result);
         }
 
+        [HttpPut("{id:int}")]
+        public IActionResult UpdateBoard(int id, [FromBody] BoardsUpdateDto boarddto)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+            var board = context.Boards.FirstOrDefault(b => b.Id == id && b.OwnerId == userId);
+            if (board == null)
+            {
+                return NotFound("Board not found or you don't have permission to update it.");
+            }
+            board.Name = boarddto.Name;
+            context.SaveChanges();
+            var result = new BoardsResponseDto
+            {
+                Id = board.Id,
+                Name = board.Name,
+                CreatedAt = board.CreatedAt
+            };
+            return Ok(result);
+        }
         [HttpGet]
 
         public IActionResult GetBoards()
