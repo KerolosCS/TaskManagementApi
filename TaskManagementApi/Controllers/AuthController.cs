@@ -19,6 +19,7 @@ namespace TaskManagementApi.Controllers
 
 
         [HttpPost("register")]
+        [ProducesResponseType( StatusCodes.Status200OK)]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
 
@@ -38,6 +39,8 @@ namespace TaskManagementApi.Controllers
 
 
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
 
@@ -56,11 +59,12 @@ namespace TaskManagementApi.Controllers
         }
 
         [HttpGet("profile")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetProfile()
         {
 
 
-            System.IO.File.ReadAllText(@"c:\lolo");
+            System.IO.File.ReadAllText(@"c:\just for testing the error must be in global scheme");
             return Ok();
         }
     }

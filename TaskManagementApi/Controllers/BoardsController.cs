@@ -17,6 +17,7 @@ namespace TaskManagementApi.Controllers
     {
         private int GetUserId() => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateBoard([FromBody] BoardsCreateDto boarddto)
         {
                var board = new Board
@@ -38,6 +39,8 @@ namespace TaskManagementApi.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateBoard(int id, [FromBody] BoardsUpdateDto boarddto)
         {
             var board = await boardRepository.GetBoardByIdAsync(id, GetUserId());
@@ -56,7 +59,8 @@ namespace TaskManagementApi.Controllers
             return Ok(result);
         }
         [HttpGet]
-
+        [ProducesResponseType(StatusCodes.Status200OK)]
+     
         public async Task<IActionResult> GetBoards()
         { 
         
@@ -74,6 +78,8 @@ namespace TaskManagementApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
+            [ProducesResponseType(StatusCodes.Status200OK)]
+            [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteBoard([FromRoute] int id) {
 
 
@@ -88,6 +94,8 @@ namespace TaskManagementApi.Controllers
 
         }
         [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task <IActionResult> GetBoardDetails([FromRoute]int id)
         {
 

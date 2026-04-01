@@ -17,6 +17,8 @@ namespace TaskManagementApi.Controllers
     {
         private int GetUserId() => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+
         public async Task<IActionResult> AddComment(CommentCreateDto commentdto)
         {
 
@@ -49,7 +51,7 @@ namespace TaskManagementApi.Controllers
 
 
         [HttpGet("task/{taskId:int}")]
-
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetComments(int taskId)
         {
             var comments = await commentRepo.GetCommentsByTaskIdAsync(taskId);
@@ -68,6 +70,8 @@ namespace TaskManagementApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteComment(int id)
         {
 
@@ -82,6 +86,8 @@ namespace TaskManagementApi.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateComment(int id, CommentUpdateDto commentdto)
         {
             var comment = await commentRepo.GetCommentByIdAsync(id, GetUserId());

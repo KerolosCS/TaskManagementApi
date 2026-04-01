@@ -17,6 +17,8 @@ namespace TaskManagementApi.Controllers
     {
         private int GetUserId() => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        
         public async Task<IActionResult> CreateTask([FromBody] TaskCreateDto taskCreateDto)
         {
           
@@ -47,7 +49,8 @@ namespace TaskManagementApi.Controllers
 
 
         [HttpGet("board/{boardId:int}")]
-
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTasksByBoard(int boardId)
         {
           var board  = await  boardRepo.GetBoardByIdAsync(boardId,GetUserId());
@@ -65,6 +68,8 @@ namespace TaskManagementApi.Controllers
             return Ok(response);
         }
         [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateTask(int id, [FromBody] UpdateTaskDto taskUpdateDto)
         {
             var task = await taskRepo.GetTaskByIdAsync(id, GetUserId());
@@ -86,6 +91,8 @@ namespace TaskManagementApi.Controllers
 
         }
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteTask(int id)
         {
             var task = await taskRepo.GetTaskByIdAsync(id, GetUserId());
