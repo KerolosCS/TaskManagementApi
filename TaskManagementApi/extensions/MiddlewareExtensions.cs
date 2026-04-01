@@ -8,13 +8,13 @@ public static class MiddlewareExtensions
     {
         app.UseExceptionHandler();
 
-        if (app.Environment.IsDevelopment())
+        if (!app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
 
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/openapi/v1.json", "v1");
+                options.SwaggerEndpoint("./openapi/v1.json", "v1");
                 options.RoutePrefix = string.Empty;
             });
 
