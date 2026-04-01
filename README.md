@@ -1,4 +1,4 @@
-# 🗂️ Task Management API
+# 🗂️ Task Management API - ASP.NET Core (Repository Pattern)
 
 A RESTful API built with ASP.NET Core for managing tasks, boards, users, and comments.
 
@@ -24,6 +24,7 @@ A RESTful API built with ASP.NET Core for managing tasks, boards, users, and com
 * SQL Server
 * JWT Authentication
 * Swagger / OpenAPI
+* Repository Pattern for clean data access abstraction, improved testability, and maintainability
 
 ---
 
