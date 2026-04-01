@@ -2,6 +2,7 @@
 
 A RESTful API built with ASP.NET Core for managing tasks, boards, users, and comments.
 
+🚀 **Live API:** [Hosted on MonsterASP.net](🔗 https://task-management-api.runasp.net/index.html )
 ---
 
 ## 🚀 Features
