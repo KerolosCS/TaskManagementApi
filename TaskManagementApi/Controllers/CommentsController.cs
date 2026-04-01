@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TaskManagementApi.Data;
+using TaskManagementApi.Data.Repositories.Interfaces;
 using TaskManagementApi.DTOs;
 using TaskManagementApi.models;
 
@@ -12,30 +13,30 @@ namespace TaskManagementApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class CommentsController(AppDbContext context) : ControllerBase
+    public class CommentsController(ICommentRepository commentRepo, ITaskRepository taskRepo) : ControllerBase
     {
-
+        private int GetUserId() => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
         [HttpPost]
-        public IActionResult AddComment(CommentCreateDto commentdto)
+        public async Task<IActionResult> AddComment(CommentCreateDto commentdto)
         {
 
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-            var task = context.Tasks.FirstOrDefault(t => t.Id == commentdto.TaskId);
-            var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+            var task = await taskRepo.GetTaskByIdAsync(commentdto.TaskId, GetUserId());
             if (task == null)
             {
                 return NotFound("Task not found.");
             }
             var comment = new Comment
             {
-                UserId = userId,
+                UserId = GetUserId(),
                 TaskId = commentdto.TaskId,
                 Content = commentdto.Content,
                 CreatedAt = DateTime.UtcNow
             };
-            context.Comments.Add(comment);
-            context.SaveChanges();
-            context.Entry(comment).Reference(c => c.User).Load();
+            await commentRepo.AddCommentAsync(comment);
+            await commentRepo.SaveChangesAsync();
+
+            
+            await commentRepo.LoadUserAsync(comment);
             return Ok(new CommentResponseDto
             {
                 Id = comment.Id,
@@ -49,50 +50,46 @@ namespace TaskManagementApi.Controllers
 
         [HttpGet("task/{taskId:int}")]
 
-        public IActionResult GetComments(int taskId)
+        public async Task<IActionResult> GetComments(int taskId)
         {
-            var comments = context.Comments
-                .Where(c => c.TaskId == taskId).Select(c => new CommentResponseDto
+            var comments = await commentRepo.GetCommentsByTaskIdAsync(taskId);
+
+            var response = comments.Select(c => new CommentResponseDto
                 {
 
                     Id = c.Id,
                     Content = c.Content,
                     CreatedAt = c.CreatedAt,
                     UserName = c.User.Name,
-                }).ToList();
+                });
 
 
-            return Ok(comments);
+            return Ok(response);
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult DeleteComment(int id)
+        public async Task<IActionResult> DeleteComment(int id)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            var comment = context.Comments
-                .FirstOrDefault(c => c.Id == id && c.UserId == userId);
 
-            if (comment == null)
-                return NotFound();
+            var comment = await commentRepo.GetCommentByIdAsync(id, GetUserId());
+            if (comment == null) return NotFound();
 
-            context.Comments.Remove(comment);
-            context.SaveChanges();
+            commentRepo.DeleteComment(comment);
+            await commentRepo.SaveChangesAsync();
 
             return NoContent();
         }
 
         [HttpPut("{id:int}")]
-        public IActionResult UpdateComment(int id, CommentUpdateDto commentdto)
+        public async Task<IActionResult> UpdateComment(int id, CommentUpdateDto commentdto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var comment = context.Comments
-                .FirstOrDefault(c => c.Id == id && c.UserId == userId);
-            if (comment == null)
-                return NotFound();
+            var comment = await commentRepo.GetCommentByIdAsync(id, GetUserId());
+            if (comment == null) return NotFound();
             comment.Content = commentdto.Content;
-            context.SaveChanges();
-            context.Entry(comment).Reference(c => c.User).Load();
+            await commentRepo.SaveChangesAsync();
+
+            await commentRepo.LoadUserAsync(comment);
             return Ok(new CommentResponseDto
             {
                 Id = comment.Id,

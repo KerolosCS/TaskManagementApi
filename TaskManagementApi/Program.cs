@@ -7,6 +7,8 @@ using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using System.Text;
 using TaskManagementApi.Data;
+using TaskManagementApi.Data.Repositories;
+using TaskManagementApi.Data.Repositories.Interfaces;
 using TaskManagementApi.Filters;
 using TaskManagementApi.Middleware;
 public partial class Program
@@ -14,6 +16,10 @@ public partial class Program
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+        builder.Services.AddScoped<IBoardRepository, BoardRepository>();
+        builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+        builder.Services.AddScoped<ICommentRepository, CommentRepository>();
         // add problem details factory
         builder.Services.AddProblemDetails();
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>(); 
@@ -101,7 +107,7 @@ public partial class Program
         });
         builder.Services.AddEndpointsApiExplorer();
         var app = builder.Build();
-
+        app.UseExceptionHandler();
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -113,21 +119,22 @@ public partial class Program
             
 
             });
-            
+            app.MapScalarApiReference(options =>
+            {
+                options
+                    .WithTitle("Task Management API")
+                    .WithTheme(ScalarTheme.DeepSpace)
+                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+            });
+
         }
-        app.MapScalarApiReference(options =>
-        {
-            options
-                .WithTitle("Task Management API")
-                .WithTheme(ScalarTheme.DeepSpace)
-                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-        });
+       
         app.UseHttpsRedirection();
 
         app.UseAuthentication();
 
         app.UseAuthorization();
-        app.UseExceptionHandler();
+     
         app.MapControllers();
 
      

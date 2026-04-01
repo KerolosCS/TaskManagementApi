@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TaskManagementApi.Data;
+using TaskManagementApi.Data.Repositories.Interfaces;
 using TaskManagementApi.DTOs;
 using TaskManagementApi.models;
 
@@ -12,24 +13,21 @@ namespace TaskManagementApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class BoardsController (AppDbContext context): ControllerBase
+    public class BoardsController (IBoardRepository boardRepository): ControllerBase
     {
+        private int GetUserId() => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
         [HttpPost]
-        public IActionResult CreateBoard([FromBody] BoardsCreateDto boarddto)
+        public async Task<IActionResult> CreateBoard([FromBody] BoardsCreateDto boarddto)
         {
-
-
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-
-            var board = new Board
+               var board = new Board
             {
                 Name = boarddto.Name,
-                OwnerId = userId,
+                OwnerId = GetUserId(),
                 CreatedAt = DateTime.UtcNow
             };
 
-            context.Boards.Add(board);
-            context.SaveChanges();
+            await boardRepository.AddBoardAsync(board);
+            await boardRepository.SaveChangesAsync();
             var result = new BoardsResponseDto
             {
                 Id = board.Id,
@@ -40,16 +38,15 @@ namespace TaskManagementApi.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public IActionResult UpdateBoard(int id, [FromBody] BoardsUpdateDto boarddto)
+        public async Task<IActionResult> UpdateBoard(int id, [FromBody] BoardsUpdateDto boarddto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-            var board = context.Boards.FirstOrDefault(b => b.Id == id && b.OwnerId == userId);
+            var board = await boardRepository.GetBoardByIdAsync(id, GetUserId());
             if (board == null)
             {
                 return NotFound("Board not found or you don't have permission to update it.");
             }
-            board.Name = boarddto.Name;
-            context.SaveChanges();
+            boardRepository.UpdateBoard(board);
+            await boardRepository.SaveChangesAsync();
             var result = new BoardsResponseDto
             {
                 Id = board.Id,
@@ -60,11 +57,11 @@ namespace TaskManagementApi.Controllers
         }
         [HttpGet]
 
-        public IActionResult GetBoards()
+        public async Task<IActionResult> GetBoards()
         { 
         
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-            var boards = context.Boards.Where(b => b.OwnerId == userId).ToList();
+            var boards = await boardRepository.GetUserBoardsAsync(GetUserId());
 
 
             var boardsResponse = boards.Select(b => new BoardsResponseDto
@@ -77,44 +74,43 @@ namespace TaskManagementApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult DeleteBoard([FromRoute] int id) { 
-        
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-            var board = context.Boards.FirstOrDefault(b => b.Id == id && b.OwnerId == userId);
+        public async Task<IActionResult> DeleteBoard([FromRoute] int id) {
+
+
+            var board = await boardRepository.GetBoardByIdAsync(id, GetUserId());
             if (board == null)
             {
                 return NotFound("Board not found or you don't have permission to delete it.");
             }
-            context.Boards.Remove(board);
-            context.SaveChanges();
+            boardRepository.DeleteBoard(board);
+            await boardRepository.SaveChangesAsync();
             return Ok("Board deleted successfully");
 
         }
         [HttpGet("{id:int}")]
-        public IActionResult GetBoardDetails([FromRoute]int id)
+        public async Task <IActionResult> GetBoardDetails([FromRoute]int id)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
 
-            var board = context.Boards
-                .Where(b => b.Id == id && b.OwnerId == userId)
-                .Select(b => new BoardsDetailsDto
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Tasks = b.Tasks.Select(t => new TaskDto
-                    {
-                        Id = t.Id,
-                        Title = t.Title,
-                        Status = t.Status,
-                        Priority = t.Priority
-                    }).ToList()
-                })
-                .FirstOrDefault();
+
+            var board = await boardRepository.GetBoardByIdAsync(id, GetUserId());
 
             if (board == null)
                 return NotFound();
 
-            return Ok(board);
+            var boardDetailsDto = new BoardsDetailsDto
+            {
+                Id = board.Id,
+                Name = board.Name,
+                Tasks = board.Tasks.Select(t => new TaskDto
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Status = t.Status,
+                    Priority = t.Priority
+                }).ToList()
+            };
+
+            return Ok(boardDetailsDto);
         }
 
     }
