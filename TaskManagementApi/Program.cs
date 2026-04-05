@@ -12,7 +12,7 @@ public class Program
             .AddCustomOpenApi();
 
         var app = builder.Build();
-
+          
         app.UseApplicationMiddleware();
 
         app.Run();
